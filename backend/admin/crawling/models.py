@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import pandas as pd
 from nltk import FreqDist
 from admin.common.models import ValueObject, Printer, Reader
@@ -10,9 +11,12 @@ from selenium import webdriver
 from konlpy.tag import Okt
 from nltk.tokenize import word_tokenize
 import nltk
+# nltk.download()
 import re
 from bs4 import BeautifulSoup
 from wordcloud import WordCloud
+
+
 # driver.close()
 class Crawling(object):
     def __init__(self):
@@ -26,37 +30,59 @@ class Crawling(object):
         self.samsung_report(vo)
 
     def samsung_report(self, vo):
-        from konlpy.tag import Okt
         okt = Okt()
+        # daddy_bag = okt.pos('아버지 가방에 들어가신다', norm=True,stem=True)
+        # print(f'::::::{dt.now()}:::::: \n {daddy_bag}')
         okt.pos('삼성전자 글로벌센터 전자사업부', stem=True)
-
-        with open('admin/crawling/data/kr-Report_2018.txt', 'r',
-                  encoding='UTF-8') as f:
-            texts = f.read()
+        # filename = f'{vo.context}kr-Report_2018.txt'
+        with open(f'{vo.context}kr-Report_2018.txt', 'r', encoding='UTF-8') as f:
+        #     texts = f.read()
         # print(texts)
-        temp = texts.replace('\n', ' ')
+        # temp = texts.replace('\n', ' ')
+            full_texts = f.read()
+        line_removed_texts = full_texts.replace('\n', ' ')
+        # print(f':::::::: {dt.now()} ::::::::\n {line_removed_texts}')
+
         tokenizer = re.compile(r'[^ ㄱ-힣]+')
-        temp = tokenizer.sub('', temp)
-        tokens = word_tokenize(temp)
+        # temp = tokenizer.sub('', temp)
+        # tokens = word_tokenize(temp)
+        tokenized_texts = tokenizer.sub('', line_removed_texts)
+        tokens = word_tokenize(tokenized_texts)
+        # print(f':::::::: {dt.now()} ::::::::\n {tokens}')
+
         noun_tokens = []
         for i in tokens:
             token_pos = okt.pos(i)
-            temp = [txt_tag[0] for txt_tag in token_pos if txt_tag[1] == 'Noun']
-            if len(''.join(temp)) > 1:
-                noun_tokens.append(''.join(temp))
-        texts = ' '.join(noun_tokens)
-        # print(texts)
+            noun_token = [txt_tag[0] for txt_tag in token_pos if txt_tag[1] == 'Noun']
+            if len(''.join(noun_token)) > 1:
+                noun_tokens.append(''.join(noun_token))
+        # print(f':::::::: {dt.now()} ::::::::\n {noun_tokens[:10]}')
 
-        with open(f'{vo.context}stopwords.txt','r',encoding='UTF-8') as f:
+        noun_tokens_join = " ".join(noun_tokens)
+        tokens = word_tokenize(noun_tokens_join)
+        # print(f':::::::: {dt.now()} ::::::::\n {tokens}')
+
+        # stopfile = f'{vo.context}stopwords.txt'
+        # with open(stopfile, 'r', encoding='utf-8') as f:
+        with open(f'{vo.context}stopwords.txt', 'r', encoding='UTF-8') as f:
             stopwords = f.read()
         stopwords = stopwords.split(' ')
+        stopwords.extend('용량', '각주', '가능보고서', '고려', '전세계', '릴루미노', '가지창')
         # print(f'::::::::{dt.now()}:::::::::: \n {stopwords}')
-        texts = [text for text in tokens if text not in stopwords]
-        freqtxt = pd.Series(dict(FreqDist(texts)))
-        sorted_txt = freqtxt.sort_values(ascending=False)
-        print(f'::::::::::{dt.now()}::::::::::: \n {sorted_txt[:30]}')
+        # texts = [text for text in tokens if text not in stopwords]
+        texts_without_stopwords = [text for text in tokens if text not in stopwords]
+        # print(f':::::::: {dt.now()} ::::::::\n {texts_without_stopwords[:10]}')
 
+        # freqtxt = pd.Series(dict(FreqDist(texts)))
+        # sorted_txt = freqtxt.sort_values(ascending=False)
+        freqtxt = pd.Series(dict(FreqDist(texts_without_stopwords))).sort_values(ascending=False)
+        # print(f'::::::::::{dt.now()}::::::::::: \n {freqtxt[:30]}')
 
+        wcloud = WordCloud(f'{vo.context}D2Coding.ttf', relative_scaling=0.2, background_color='white').generate(' '.join(texts_without_stopwords))
+        plt.figure(figsize=(12,12))
+        plt.imshow(wcloud, interpolation='bilinear')
+        plt.axis('off')
+        plt.savefig(f'{vo.context}wcloud.png')
 
     def naver_movie(self):
         vo = ValueObject()
@@ -69,7 +95,7 @@ class Crawling(object):
         arr = [div.a.string for div in all_div]
         for i in arr:
             print(i)
-        dt = {i+1 : val for i, val in enumerate(arr)}
+        dt = {i + 1: val for i, val in enumerate(arr)}
         with open(vo.context + 'with_save.csv', 'w', encoding='UTF-8') as f:
             w = csv.writer(f)
             w.writerow(dt.keys())
