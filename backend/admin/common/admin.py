@@ -1,5 +1,3 @@
-from django.apps import AppConfig
+from django.contrib import admin
 
-
-class CommonConfig(AppConfig):
-    name = 'admin.common'
+# Register your models here.

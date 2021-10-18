@@ -1,9 +1,10 @@
 import pandas as pd
-from sklearn import preprocessing
+from nltk import FreqDist
 from admin.common.models import ValueObject, Printer, Reader
+from sklearn import preprocessing
 from icecream import ic
 import numpy as np
-import datetime as dt
+from datetime import datetime as dt
 import csv
 from selenium import webdriver
 from konlpy.tag import Okt
@@ -11,6 +12,7 @@ from nltk.tokenize import word_tokenize
 import nltk
 import re
 from bs4 import BeautifulSoup
+from wordcloud import WordCloud
 # driver.close()
 class Crawling(object):
     def __init__(self):
@@ -27,6 +29,7 @@ class Crawling(object):
         from konlpy.tag import Okt
         okt = Okt()
         okt.pos('삼성전자 글로벌센터 전자사업부', stem=True)
+
         with open('admin/crawling/data/kr-Report_2018.txt', 'r',
                   encoding='UTF-8') as f:
             texts = f.read()
@@ -35,7 +38,6 @@ class Crawling(object):
         tokenizer = re.compile(r'[^ ㄱ-힣]+')
         temp = tokenizer.sub('', temp)
         tokens = word_tokenize(temp)
-
         noun_tokens = []
         for i in tokens:
             token_pos = okt.pos(i)
@@ -43,7 +45,17 @@ class Crawling(object):
             if len(''.join(temp)) > 1:
                 noun_tokens.append(''.join(temp))
         texts = ' '.join(noun_tokens)
-        print(texts)
+        # print(texts)
+
+        with open(f'{vo.context}stopwords.txt','r',encoding='UTF-8') as f:
+            stopwords = f.read()
+        stopwords = stopwords.split(' ')
+        # print(f'::::::::{dt.now()}:::::::::: \n {stopwords}')
+        texts = [text for text in tokens if text not in stopwords]
+        freqtxt = pd.Series(dict(FreqDist(texts)))
+        sorted_txt = freqtxt.sort_values(ascending=False)
+        print(f'::::::::::{dt.now()}::::::::::: \n {sorted_txt[:30]}')
+
 
 
     def naver_movie(self):
