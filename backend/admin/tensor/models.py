@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+from statsmodels.sandbox.archive.linalg_covmat import ls
 from tensorflow import keras
 
 from admin.common.models import ValueObject
@@ -15,44 +16,90 @@ class FashionClassification(object):
                            'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
     def fashion(self):  # django
-        self.get_data()
+        # self.get_data()
+        self.hook()
 
     def hook(self):  # 전체 다 걸림
         images = self.get_data()
         model = self.create_model()
-        model = self.train_model()
-        arr = self.predict()
-        self.plot_image()
-        self.plot_value_array()
+        # model = self.train_model(model, X_train_full, y_train_full)
+        model = self.train_model(model, ls[0], ls[1])
+        self.test_model(model)
+        arr = self.predict(model, ls[2], ls[3], 0)  # leave index val as 0
+        prediction = arr[0]
+        test_images = arr[1]
+        test_labels = arr[2]
+        i = 5
+        print(f'prediction: {prediction}')
+        print(f'test img: {prediction}')
+        print(f'test val: {prediction}')
+        # plt.figure(figsize=(6,3))
+        # plt.subplot(1,2,1)
+        #
+        # plt.grid(False)
+        # plt.savefig(f'{self.vo.context}fashion_random.png')
+        # self.plot_image()
+        # self.plot_value_array()
 
     def get_data(self) -> []:
         fashion_mnist = keras.datasets.fashion_mnist
         (X_train_full, y_train_full), (X_test, y_test) = fashion_mnist.load_data()
-        print(X_train_full.shape)
-        print(X_train_full.dtype)
-        print(f'train 행 : {X_train_full.shape[0]} 열 : {X_train_full.shape[1]}')
-        print(f'test 행 : {X_test.shape[0]} 열 : {X_test.shape[1]}')
+        # self.peek_datas(X_train_full, X_test, y_train_full)
+        return [X_train_full, y_train_full, X_test, y_test]  # ls base
+
+    def peek_datas(self, train_images, test_images, train_labels):
+        print(train_images.shape)
+        print(train_images.dtype)
+        print(f'train 행 : {train_images.shape[0]} 열 : {train_images.shape[1]}')
+        print(f'test 행 : {test_images.shape[0]} 열 : {test_images.shape[1]}')
         plt.figure()
-        plt.imshow(X_train_full[3])
+        plt.imshow(train_images[3])
         plt.colorbar()
         plt.grid(False)
         plt.savefig(f'{self.vo.context}fashion_random.png')
-        return [X_train_full, y_train_full, X_test, y_test]
 
-    def preprocess(self):
-        pass
+        plt.figure(figsize=(10, 10))
+        for i in range(25):
+            plt.subplot(5, 5, i + 1)
+            plt.xticks([])
+            plt.yticks([])
+            plt.grid(False)
+            plt.imshow(train_images[i], cmap=plt.cm.binary)
+            plt.xlabel(self.class_name[train_labels[i]])
+        plt.savefig(f'{self.vo.context}fashion_subplot.png')
 
     def create_model(self) -> object:
-        pass
+        # model = keras.models.Sequential()  # "sequential model"
+        # model.add(keras.layers.Flatten(input_shape=[28, 28]))  # input(matrix) layer flat.
+        # # also sets pixel size for fshrdm.png
+        # model.add(keras.layers.Dense(300, activation="relu"))  # neuron count 300
+        # # model.add(keras.layers.Dense(100, activation="relu"))  # he thinks it's duplicate
+        # model.add(keras.layers.Dense(10, activation="softmax"))  # output layer activation fn
+        model = keras.Sequential([  # TF book p373
+            keras.layers.Flatten(input_shape=[28, 28]),
+            keras.layers.Dense(300, activation="relu"),
+            keras.layers.Dense(10, activation="softmax")
+        ])
+        # model.summary()  # Tf book p375
+        # model.compile(optimizer='sgd', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+        return model
 
-    def train_model(self) -> object:
-        pass
+    def train_model(self, model, train_images, train_labels) -> object:  # TF book p378
+        model.fit(train_images, train_labels, epoch=5)
+        return model
 
-    def test_model(self) -> object:
-        pass
+    def test_model(self, model, test_images, test_labels) -> object:
+        test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=2)
+        print(f'test accuracy: {test_acc}')
 
-    def predict(self):
-        pass
+    def predict(self, model, test_images, test_labels, index):
+        prediction = model.predict(test_images)
+        pred = prediction[index]
+        answer = test_labels[index]
+        print(f' model predicted value {np.argmax(pred)}')
+        print(f'answer: {answer}')
+        return [prediction, test_images, test_labels]
 
     def plot_image(self):
         pass
