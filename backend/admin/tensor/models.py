@@ -20,32 +20,58 @@ class FashionClassification(object):
         self.hook()
 
     def hook(self):  # 전체 다 걸림
-        images = self.get_data()
+        # images = self.get_data()
+        [train_images, train_labels, test_images, test_labels] = self.get_data()
         model = self.create_model()
         # model = self.train_model(model, X_train_full, y_train_full)
-        model = self.train_model(model, ls[0], ls[1])
-        self.test_model(model)
-        arr = self.predict(model, ls[2], ls[3], 0)  # leave index val as 0
-        prediction = arr[0]
-        test_images = arr[1]
-        test_labels = arr[2]
+        # model = self.train_model(model, ls[0], ls[1])  NOPE
+        # self.test_model(model)
+        # arr = self.predict(model, ls[2], ls[3], 0)  # leave index val as 0
+        # prediction = arr[0]
+        # test_images = arr[1]
+        # test_labels = arr[2]
+        model.fit(train_images, train_labels, epochs=5)
+        test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=2)
+        # verbose 는 학습하는 내부상황 보기 중 2번선택
+        print(f'테스트 정확도: {test_acc}')
         i = 5
-        print(f'prediction: {prediction}')
-        print(f'test img: {prediction}')
-        print(f'test val: {prediction}')
-        # plt.figure(figsize=(6,3))
-        # plt.subplot(1,2,1)
-        #
-        # plt.grid(False)
+        # print(f'prediction: {prediction}')
+        # print(f'test img: {prediction}')
+        # print(f'test val: {prediction}')
+        predictions = model.predict(test_images)
+        pred = predictions[i]
+        answer = test_labels[i]
+        print(f'모델이 예측한 값 {np.argmax(pred)}')
+        print(f'정답: {answer}')
+
+        plt.figure(figsize=(6,3))
+        plt.subplot(1,2,1)
+        prediction_array, true_label, image = predictions[i], test_labels[i], test_images[i]
+        plt.grid(False)
+        plt.xticks([])
+        plt.yticks([])
+        plt.imshow(image, cmap=plt.cm.binary)
+        prediction_label = np.argmax(predictions)
+        print('f{prediction_label}')
+        print('#' * 100)
+        print('f{true_label}')
+        # if prediction_label == true_label:
+        #     color = 'blue'
+        # else:
+        #     color = 'red'
+        # plt.xlabel('{} : {}%'.format(self.class_names[prediction_label],
+        #                              100 * np.max(prediction_array),
+        #                              self.class_names[true_label], color))
         # plt.savefig(f'{self.vo.context}fashion_random.png')
         # self.plot_image()
         # self.plot_value_array()
 
     def get_data(self) -> []:
         fashion_mnist = keras.datasets.fashion_mnist
-        (X_train_full, y_train_full), (X_test, y_test) = fashion_mnist.load_data()
+        (train_images, train_labels),(test_images, test_labels) = fashion_mnist.load_data()
         # self.peek_datas(X_train_full, X_test, y_train_full)
-        return [X_train_full, y_train_full, X_test, y_test]  # ls base
+        # return [X_train_full, y_train_full, X_test, y_test]  # ls base
+        return [train_images, train_labels, test_images, test_labels]
 
     def peek_datas(self, train_images, test_images, train_labels):
         print(train_images.shape)
@@ -77,7 +103,8 @@ class FashionClassification(object):
         # model.add(keras.layers.Dense(10, activation="softmax"))  # output layer activation fn
         model = keras.Sequential([  # TF book p373
             keras.layers.Flatten(input_shape=[28, 28]),
-            keras.layers.Dense(300, activation="relu"),
+            # keras.layers.Dense(300, activation="relu"),
+            keras.layers.Dense(128, activation="relu"),  # 300 -> 128
             keras.layers.Dense(10, activation="softmax")
         ])
         # model.summary()  # Tf book p375
@@ -85,27 +112,27 @@ class FashionClassification(object):
         model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         return model
 
-    def train_model(self, model, train_images, train_labels) -> object:  # TF book p378
-        model.fit(train_images, train_labels, epoch=5)
-        return model
-
-    def test_model(self, model, test_images, test_labels) -> object:
-        test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=2)
-        print(f'test accuracy: {test_acc}')
-
-    def predict(self, model, test_images, test_labels, index):
-        prediction = model.predict(test_images)
-        pred = prediction[index]
-        answer = test_labels[index]
-        print(f' model predicted value {np.argmax(pred)}')
-        print(f'answer: {answer}')
-        return [prediction, test_images, test_labels]
-
-    def plot_image(self):
-        pass
-
-    def plot_value_array(self):
-        pass
+    # def train_model(self, model, train_images, train_labels) -> object:
+    #     model.fit(train_images, train_labels, epoch=5)
+    #     return model
+    #
+    # def test_model(self, model, test_images, test_labels) -> object:
+    #     test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=2)
+    #     print(f'test accuracy: {test_acc}')
+    #
+    # def predict(self, model, test_images, test_labels, index):
+    #     prediction = model.predict(test_images)
+    #     pred = prediction[index]
+    #     answer = test_labels[index]
+    #     print(f' model predicted value {np.argmax(pred)}')
+    #     print(f'answer: {answer}')
+    #     return [prediction, test_images, test_labels]
+    #
+    # def plot_image(self):
+    #     pass
+    #
+    # def plot_value_array(self):
+    #     pass
 
 
 class AdalineGD(object):  # 적응형 선형 뉴런 분류기.  GD = gradient descent 경사 하강법. GD = atom???
@@ -121,7 +148,7 @@ class AdalineGD(object):  # 적응형 선형 뉴런 분류기.  GD = gradient de
 
         rgen = np.random.RandomState(self.random_state)
         self.w_ = rgen.normal(loc=0.0, scale=0.01, size=1 + X.shape[1])
-        self.cost_ = []  # 에포크마다 누적된 비용 함수의 제곱합
+        self.cost_ = []  #  accum 비용 함수의 제곱 sum per epoch
 
         for i in range(self.n_iter):
             net_input = self.net_input(X)
@@ -150,7 +177,7 @@ class AdalineGD(object):  # 적응형 선형 뉴런 분류기.  GD = gradient de
         return np.where(self.activation(self.net_input(X)) >= 0.0, 1, -1)
 
 
-class Perceptron(object):
+class Perceptron(object):  # perceptron classifier
     def __init__(self, eta=0.01, n_iter=50, random_state=1):
         #   매개변수
         #   eta : float 학습률 (0.0~1.0)
