@@ -16,3 +16,11 @@ def base(request):
 def advanced(request):
     Iris().advanced()
     return JsonResponse({'Iris Advanced': 'Success'})
+
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def iris_by_tf(request):
+    Iris().iris_by_tf()
+    return JsonResponse({'Iris TF': 'Success'})
+
+

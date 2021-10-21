@@ -3,6 +3,9 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from admin.common.models import ValueObject
+from keras.datasets import mnist
+from keras.models import Sequential
+from keras.layers import Dense, Dropout
 
 class TensorFunction(object):  # 211020:10am~
     def __init__(self):
