@@ -9,7 +9,7 @@ from admin.iris.models import Iris
 @parser_classes([JSONParser])
 def base(request):
     Iris().base()
-    return JsonResponse({'Iris Base': 'Success'})\
+    return JsonResponse({'Iris Base': 'Success'})
 
 @api_view(['GET'])
 @parser_classes([JSONParser])
