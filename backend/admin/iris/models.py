@@ -34,7 +34,38 @@ class Iris(object):
         # print(f'Iris data top 5: {train_dataset_fp.head(5)}')
         vo.fname = 'iris_training'
         iris_df = reader.csv(reader.new_file(vo))
-        print(f'iris_df HEAR: {iris_df.head(3)}')
+        # print(f'iris_df HEAR: {iris_df.head(3)}')
+
+        # column order in CSV file
+        column_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'species']
+
+        feature_names = column_names[:-1]
+        label_name = column_names[-1]
+
+        print(f"Features: {feature_names}")
+        print(f"Label: {label_name}")
+
+        batch_size = 32
+
+        train_dataset = tf.data.experimental.make_csv_dataset(
+            train_dataset_fp,
+            batch_size,
+            column_names=column_names,
+            label_name=label_name,
+            num_epochs=1)
+
+        features, labels = next(iter(train_dataset))
+
+        print(features)
+        plt.scatter(features['petal_length'],
+                    features['sepal_length'],
+                    c=labels,
+                    cmap='viridis')
+
+        plt.xlabel("Petal length")
+        plt.ylabel("Sepal length")
+        plt.savefig(f'{self.vo.context}iris_tf_scatter.png')
+
 
     def base(self):
         np.random.seed(0)
