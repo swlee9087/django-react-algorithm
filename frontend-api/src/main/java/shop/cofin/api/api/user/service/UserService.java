@@ -8,6 +8,5 @@ import java.util.Optional;
 
 public interface UserService {
     Optional<User> findById(long userId);
-    Optional<String> login (String username, String password);
-
+    Optional<User> login(String username, String password);
 }

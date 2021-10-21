@@ -7,26 +7,29 @@ import shop.cofin.api.api.user.domain.User;
 
 import javax.persistence.*;
 
-@Data @Component @Entity @Table(name="articles")
-
+@Entity
+@Data @Component @Table(name = "articles")
 public class Article {
     @Id
-    @Column(name="article_id")
-    @GeneratedValue
+    @Column(name = "article_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long articleId;
-    @Column @NotNull
-    private String title;
-    @Column @NotNull
-    private String content;
-    @Column(name="written_date") @NotNull
-    private String writtenDate;
+
+    @Column @NotNull private String title;
+    @Column @NotNull private String content;
+    @Column(name = "written_date") @NotNull private String writtenDate;
 
     @ManyToOne
-    @JoinColumn(name="user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
+
     @ManyToOne
-    @JoinColumn(name="item_id", insertable = false, updatable = false)
+    @JoinColumn(name = "item_id", insertable = false, updatable = false)
     private User item;
+
+
+
+
 
 
 }

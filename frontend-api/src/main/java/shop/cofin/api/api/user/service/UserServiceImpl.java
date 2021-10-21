@@ -13,12 +13,14 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
+
     @Override
     public Optional<User> findById(long userid) {
         return userRepository.findById(userid);
     }
+
     @Override
-    public Optional<String> login(String username, String password){
-        return userRepository.login(username,password);
+    public Optional<User> login(String username, String password) {
+        return userRepository.login(username, password);
     }
 }

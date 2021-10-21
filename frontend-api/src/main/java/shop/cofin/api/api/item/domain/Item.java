@@ -10,19 +10,17 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
-@Component
 @Entity
-@Table(name="items")
+@Data @Component @Table(name = "items")
 public class Item {
-
     @Id
-    @Column(name="item_id")
-    @GeneratedValue
+    @Column(name = "item_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long itemId;
-    @Column(name="item_brand") @NotNull    private String itemBrand;
-    @Column(name="item_name") @NotNull    private String itemName;
-    @Column(name="item_color") @NotNull    private String itemColor;
-    @Column(name="release_date") @NotNull    private String releaseDate;
-    @OneToMany(mappedBy = "item") private List<Article> articleList = new ArrayList<>();
+    @Column(name = "item_brand") @NotNull private String itemBrand;
+    @Column(name = "item_name") @NotNull private String itemName;
+    @Column(name = "item_color") @NotNull private String itemColor;
+    @Column(name = "released_date") @NotNull private String releasedDate;
+    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER)
+    private List<Article> articleList = new ArrayList<>();
 }
