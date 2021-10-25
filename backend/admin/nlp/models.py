@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
@@ -25,14 +27,40 @@ class NaverMovie(object):
         products = [[div.a.string for div in all_divs]]
         with open(f'{ctx}naver_movie_dataset.csv', 'w', encoding='UTF-8', newline='') as f:
             # for product in products:
-                # print(f'## {product}')
+            # print(f'## {product}')
             wr = csv.writer(f)
             wr.writerows(products)  # 'products' is NOT LIST TYPE, but MATRIX TYPE
-                # f.write(product)
+            # f.write(product)
             driver.close()
 
     def naver_process(self):
-        self.web_scraping()
+        ctx = self.vo.context
+        # self.web_scraping()
+        corpus = pd.read_table(f'{ctx}naver_movie_dataset.csv', sep=',', encoding='UTF-8')
+        print(f'type(corpus) ::: {type(corpus)}')
+        print(f'corpus ::: {corpus}')
+        train_X = np.array(corpus)
+        # category 0 (+ve) 1 (-ve)
+        n_class0 = len([1 for _, point in train_X if point > 3.5])
+        # n_class1 = len([2 for _, point in train_X if point <= 3.5])  NOPE
+        n_class1 = len([train_X]) - n_class0
+        counts = defaultdict(lambda: [0, 0])  # initialised
+        for doc, point in train_X:
+            if self.isNumber(doc) is False:
+                words = doc.split()
+                for word in words:
+                    counts[word][0 if point > 3.5 else 1] += 1
+        word_counts = counts
+        print(f'word_counts ::: {word_counts}')
+        # "word_counts::: defaultdict( < function NaverMovie.naver_process.
+        #                               < locals >.< lambda > at 0x0000021F7F241E50 >, {})" ???
+
+    def isNumber(self, doc):
+        try:
+            float(doc)
+            return True  # if num then just yisi enough
+        except ValueError:  # if not num then err
+            return False  # goes back to ln.47 loop
 
 
 class Imdb(object):
