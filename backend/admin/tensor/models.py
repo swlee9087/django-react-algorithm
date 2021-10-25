@@ -7,6 +7,7 @@ from keras.datasets import mnist
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
 
+
 class TensorFunction(object):  # 211020:10am~
     def __init__(self):
         self.vo = ValueObject()
@@ -148,9 +149,9 @@ class TensorFunction(object):  # 211020:10am~
     def tf_function(self):
         mnist = tf.keras.datasets.mnist
         (X_train, y_train), (X_test, y_test) = mnist.load_data()
-        X_train, X_test = X_train / 255.0, X_test /255.0
-        X_train = X_train[..., tf.newaxis] # 차원 추가
-        X_test =  X_test[..., tf.newaxis]
+        X_train, X_test = X_train / 255.0, X_test / 255.0
+        X_train = X_train[..., tf.newaxis]  # 차원 추가
+        X_test = X_test[..., tf.newaxis]
         train_ds = tf.data.Dataset.from_tensor_slices(
             (X_train, y_train)
         ).shuffle(10000).batch(32)
@@ -179,7 +180,7 @@ class FashionClassification(object):
         self.vo = ValueObject()
         self.vo.context = 'admin/tensor/data/'
         self.class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
-                           'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+                            'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
     def fashion(self):  # django
         fashion_mnist = keras.datasets.fashion_mnist

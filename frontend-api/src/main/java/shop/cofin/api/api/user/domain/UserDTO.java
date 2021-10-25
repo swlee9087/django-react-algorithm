@@ -18,16 +18,17 @@ public class UserDTO implements Serializable{
     private String regDate;
     private List<Article> articleList;
 
-    @Builder
-    UserDTO(long userId, String username, String password, String name,
-            String email, String regDate ){
-        this.userId = userId;
-        this.username = username;
-        this.password = password;
-        this.name = name;
-        this.email = email;
-        this.regDate = regDate;
-    }
+//    @Builder
+//    UserDTO(long userId, String username, String password, String name,
+//            String email, String regDate ){
+//        this.userId = userId;
+//        this.username = username;
+//        this.password = password;
+//        this.name = name;
+//        this.email = email;
+//        this.regDate = regDate;
+//    }
+
     @Builder
     UserDTO(long userId, String username, String password, String name,
             String email, String regDate, List<Article> articleList ){

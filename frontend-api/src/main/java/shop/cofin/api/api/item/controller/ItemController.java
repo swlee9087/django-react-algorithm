@@ -8,11 +8,14 @@ import shop.cofin.api.api.common.controller.CommonController;
 import shop.cofin.api.api.item.domain.Item;
 import shop.cofin.api.api.item.repository.ItemRepository;
 import shop.cofin.api.api.item.service.ItemService;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
-@RestController@RequiredArgsConstructor
+@RequestMapping("/items")
+@RequiredArgsConstructor
+@RestController
 public class ItemController implements CommonController<Item, Long> {
     private final ItemService itemService;
     private final ItemRepository itemRepository;
@@ -30,7 +33,7 @@ public class ItemController implements CommonController<Item, Long> {
     @Override
     public ResponseEntity<String> save(Item item) {
         itemRepository.save(item);
-        return ResponseEntity.ok("SUCCESS");
+        return ResponseEntity.ok("::: ITEM SAVE SUCCESS :::");
     }
 
     @Override
@@ -48,9 +51,10 @@ public class ItemController implements CommonController<Item, Long> {
         return ResponseEntity.ok(itemRepository.count());
     }
 
+    @DeleteMapping("/{id}")
     @Override
     public ResponseEntity<String> deleteById(Long id) {
         itemRepository.deleteById(id);
-        return ResponseEntity.ok("SUCCESS");
+        return ResponseEntity.ok("::: ID DELETE SUCCESS :::");
     }
 }

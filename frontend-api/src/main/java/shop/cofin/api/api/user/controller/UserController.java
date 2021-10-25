@@ -27,24 +27,14 @@ public class UserController implements CommonController<User, Long> {
 
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody User user){
-        User session = userService.login(user.getUsername(), user.getPassword()).get();
-//        System.out.println(session.toString());
-        return ResponseEntity.ok(session);
-    }
+        System.out.println("::: FROM REACT ::: "+user.toString());
+        Optional<User> u = userService.login(user.getUsername(),user.getPassword());
+        User u2 = u.get();
+        System.out.println("::: FROM DB :::"+u2.toString());
+//        System.out.println("로그인 :: 리액트에서 넘어온 정보 : " + user.toString());
+//        System.out.println("로그인 :: 디비 갔다온애 : " + returnUser.get().toString());
+        return ResponseEntity.ok(u2);
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getById(@PathVariable long id) {
-//        System.out.println("--------");
-        User user = userService.findById(id).get();
-        UserDTO userSerializer = UserDTO.builder()
-                .userId(user.getUserId())
-                .username(user.getUsername())
-                .password(user.getPassword())
-                .name(user.getName())
-                .email(user.getEmail())
-                .regDate(user.getRegDate())
-                .build();
-        return new ResponseEntity<>(userSerializer, HttpStatus.OK);
     }
 
     @Override
@@ -53,36 +43,48 @@ public class UserController implements CommonController<User, Long> {
     }
 
     @Override
-    public ResponseEntity<User> getById(Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getById(@PathVariable Long id) {
         return ResponseEntity.ok(userRepository.getById(id));
     }
+
     @PostMapping
     @Override
     public ResponseEntity<String> save(@RequestBody User user) {
-        logger.info(String.format("회원가입 정보: %s", user.toString()));
+        logger.info(String.format("::: USER INFO ::: %s", user.toString()));
         userRepository.save(user);
-        return ResponseEntity.ok("SUCCESS");
+        return ResponseEntity.ok("::: USER INFO SAVE SUCCESS :::");
+    }
+
+    @PutMapping
+    public ResponseEntity<User> update(@RequestBody User user) {
+        logger.info(String.format("::: USER INFO EDIT ::: %s", user.toString()));
+        userRepository.save(user);
+        return ResponseEntity.ok(userRepository.getById(user.getUserId()));
     }
 
     @Override
     public ResponseEntity<Optional<User>> findById(Long id) {
+        System.out.println("::: DETAILS FROM REACT :::");
         return ResponseEntity.ok(userRepository.findById(id));
     }
 
     @Override
     public ResponseEntity<Boolean> existsById(Long id) {
+        System.out.println("::: ID INFO FROM REACT :::");
         return ResponseEntity.ok(userRepository.existsById(id));
     }
 
     @Override
     public ResponseEntity<Long> count() {
+        System.out.println("::: USER COUNT :::");
         return ResponseEntity.ok(userRepository.count());
     }
 
     @Override
     public ResponseEntity<String> deleteById(Long id) {
         userRepository.deleteById(id);
-        return ResponseEntity.ok("SUCCESS");
+        return ResponseEntity.ok("::: USER DELETE SUCCESS :::");
     }
 
 
