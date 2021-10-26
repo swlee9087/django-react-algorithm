@@ -1,3 +1,4 @@
+import math
 from collections import defaultdict
 
 import tensorflow as tf
@@ -18,6 +19,28 @@ class NaverMovie(object):
         self.vo = ValueObject()
         self.vo.context = 'admin/nlp/data/'
 
+    def naver_process(self):
+        n = NaverMovie()
+        n.model_fit()
+        n.classify('내 인생 최고의 영화')
+
+    def classify(self,doc):
+        return self.class0_probs(self.model_fit(), doc)
+
+    def class0_probs(self, word_probs, doc):  # loss value
+        docwords = doc.split()
+        log_prob_if_class0 = log_prob_if_class1 = 0.0
+        for word, log_prob_if_class0, log_prob_if_class1 in word_probs:
+            if word in docwords:
+                log_prob_if_class0 += math.log(log_prob_if_class0)
+                log_prob_if_class1 += math.log(log_prob_if_class1)
+            else:
+                log_prob_if_class0 += math.log(1.0 - log_prob_if_class0)
+                log_prob_if_class1 += math.log(1.0 - log_prob_if_class1)
+        prob_if_class0 = math.exp(log_prob_if_class0)
+        prob_if_class1 = math.exp(log_prob_if_class1)
+        return prob_if_class0 / (prob_if_class0 + prob_if_class1)
+
     def web_scraping(self):
         ctx = self.vo.context
         driver = webdriver.Chrome(f'{ctx}chromedriver')
@@ -31,29 +54,37 @@ class NaverMovie(object):
             wr = csv.writer(f)
             wr.writerows(products)  # 'products' is NOT LIST TYPE, but MATRIX TYPE
             # f.write(product)
-            driver.close()
+        driver.close()
 
-    def naver_process(self):
+    def model_fit(self):
         ctx = self.vo.context
         # self.web_scraping()
-        corpus = pd.read_table(f'{ctx}naver_movie_dataset.csv', sep=',', encoding='UTF-8')
-        print(f'type(corpus) ::: {type(corpus)}')
-        print(f'corpus ::: {corpus}')
+        # corpus = pd.read_table(f'{ctx}naver_movie_dataset.csv', sep=',', encoding='UTF-8')
+        corpus = pd.read_table(f'{ctx}review_train.csv', sep=',', encoding='UTF-8')
+        # print(f'type(corpus) ::: {type(corpus)}')
+        # print(f'corpus ::: {corpus}')
         train_X = np.array(corpus)
-        # category 0 (+ve) 1 (-ve)
-        n_class0 = len([1 for _, point in train_X if point > 3.5])
-        # n_class1 = len([2 for _, point in train_X if point <= 3.5])  NOPE
-        n_class1 = len([train_X]) - n_class0
-        counts = defaultdict(lambda: [0, 0])  # initialised
-        for doc, point in train_X:
+
+        default_counts = defaultdict(lambda: [0, 0])
+        # initialises dict values, kinda sets dict format
+        for doc, point in train_X:  # for loop *2 = matrix
             if self.isNumber(doc) is False:
                 words = doc.split()
                 for word in words:
-                    counts[word][0 if point > 3.5 else 1] += 1
-        word_counts = counts
-        print(f'word_counts ::: {word_counts}')
-        # "word_counts::: defaultdict( < function NaverMovie.naver_process.
-        #                               < locals >.< lambda > at 0x0000021F7F241E50 >, {})" ???
+                    default_counts[word][0 if point > 3.5 else 1] += 1
+        counts = dict(default_counts)
+        # print(f'word_counts ::: {dict(word_counts)}')
+
+        # category 0 (+ve) 1 (-ve) => 'was fun': [1,0] // 'not fun': [0,1]
+        n_class0 = len([1 for _, point in train_X if point > 3.5])
+        n_class1 = len([train_X]) - n_class0
+        k = 0.5
+        # [(i, j) for i, j in []]  list compre
+        word_prob = [(w,
+                      (class0 + k) / (n_class0 + 2 * k),
+                      (class1 + k) / (n_class1 + 2 * k),
+                      ) for w, (class0, class1) in counts.items()]
+        print(f'prob ::: {word_prob}')
 
     def isNumber(self, doc):
         try:
