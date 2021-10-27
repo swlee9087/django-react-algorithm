@@ -11,6 +11,48 @@ import csv
 from admin.common.models import ValueObject
 import pandas as pd
 
+# !pip install tensorflow-gpu==2.0.0-rc1
+import tensorflow as tf
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+
+
+class GPUKoreanClassification(object):
+    def __init__(self):
+        pass
+
+    def classify(self):
+        ko_str = '이것은 한국어 문장입니다.'
+        ja_str = 'これは日本語の文章です。'
+        en_str = 'This is English Sentences.'
+        x_train = [self.count_codePoint(ko_str),
+                   self.count_codePoint(ja_str),
+                   self.count_codePoint(en_str)]
+        y_train = ['ko', 'ja', 'en']
+        clf = GaussianNB()
+        clf.fit(x_train, y_train)
+        ko_test_str = '안녕하세요'
+        ja_test_str = 'こんにちは'
+        en_test_str = 'Hello'
+        x_test = [self.count_codePoint(en_test_str),
+                  self.count_codePoint(ja_test_str),
+                  self.count_codePoint(ko_test_str)]
+        y_test = ['en', 'ja', 'ko']
+        y_pred = clf.predict(x_test)
+        print(y_pred)
+        print('정답률 : ', accuracy_score(y_test, y_pred))
+
+    def count_codePoint(str):
+        counter = np.zeros(65535)  # Unicode 코드 포인트 저장 배열
+        for i in range(len(str)):
+            code_point = ord(str[i])
+            if code_point > 65535:
+                continue
+            counter[code_point] += 1
+
+        counter = counter / len(str)
+        return counter
+
 
 class NaverMovie(object):
     def __init__(self):
@@ -31,6 +73,47 @@ class NaverMovie(object):
         # result::: 0.9634566316047457
         # result::: 0.00032621763187734896
         # result::: 0.01263560349465949
+
+    def review_scraping(self):  # JH's
+        ctx = self.vo.context
+        driver = webdriver.Chrome(f'{ctx}chromedriver')
+        driver.get('https://movie.naver.com/movie/point/af/list.naver?&page=1')
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        all_divs = soup.find_all('td', attrs={'class', 'title'})
+        reviews = [str(td.br.next_element.string) for td in all_divs]
+        for i, j in enumerate(reviews):
+            reviews[i] = j.replace('\n', '')
+            reviews[i] = reviews[i].replace('\t', '')
+        # for i in reviews:
+        #     i = i.replace()  X BECAUSE HERE i IS NOT AN INDEX LIKE ABOVE, THIS IS A KEY MISSING A VALUE
+        ratings = [td.em.string for td in all_divs]
+        result = {ratings[i]: reviews[i] for i in range(len(reviews))}
+        with open(f'{ctx}naver_movie_review_dataset.csv', 'w', encoding='UTF-8', newline='') as f:
+            wr = csv.writer(f, delimiter=',')
+            wr.writerow(result.keys())
+            wr.writerow(result.values())
+        driver.close()
+
+    # def web_scraping(self):  SIMILAR BUT NAH
+    #     ctx = self.vo.context
+    #     driver = webdriver.Chrome(f'{ctx}chromedriver')
+    #     driver.get('https://movie.naver.com/movie/sdb/rank/rmovie.naver')
+    #     soup = BeautifulSoup(driver.page_source, 'html.parser')
+    #     all_divs = soup.find_all('div', attrs={'class', 'tit3'})
+    #     products = [[div.a.string for div in all_divs]]
+    #     with open(f'{ctx}naver_movie_dataset.csv', 'w', encoding='UTF-8', newline='') as f:
+    #         # for product in products:
+    #         # print(f'## {product}')
+    #         wr = csv.writer(f)
+    #         wr.writerows(products)  # 'products' is NOT LIST TYPE, but MATRIX TYPE
+    #         # f.write(product)
+    #     driver.get('https://movie.naver.com/movie/point/af/list.naver')
+    #     all_divs = soup.find_all('div', attrs={'class', 'tit3'})
+    #     products = [[div.a.string for div in all_divs]]
+    #     with open(f'{ctx}review_train.csv', 'w', newline='', encoding='UTF-8') as f:
+    #         wr = csv.writer(f)
+    #         wr.writerows(products)
+    #     driver.close()
 
     def load_corpus(self):
         # corpus = pd.read_table(f'{ctx}naver_movie_dataset.csv', sep=',', encoding='UTF-8')
@@ -82,26 +165,7 @@ class NaverMovie(object):
         prob_if_class1 = exp(log_prob_if_class1)
         return prob_if_class0 / (prob_if_class0 + prob_if_class1)
 
-    # def web_scraping(self):
-    #     ctx = self.vo.context
-    #     driver = webdriver.Chrome(f'{ctx}chromedriver')
-    #     driver.get('https://movie.naver.com/movie/sdb/rank/rmovie.naver')
-    #     soup = BeautifulSoup(driver.page_source, 'html.parser')
-    #     all_divs = soup.find_all('div', attrs={'class', 'tit3'})
-    #     products = [[div.a.string for div in all_divs]]
-    #     with open(f'{ctx}naver_movie_dataset.csv', 'w', encoding='UTF-8', newline='') as f:
-    #         # for product in products:
-    #         # print(f'## {product}')
-    #         wr = csv.writer(f)
-    #         wr.writerows(products)  # 'products' is NOT LIST TYPE, but MATRIX TYPE
-    #         # f.write(product)
-    #     driver.get('https://movie.naver.com/movie/point/af/list.naver')
-    #     all_divs = soup.find_all('div', attrs={'class', 'tit3'})
-    #     products = [[div.a.string for div in all_divs]]
-    #     with open(f'{ctx}review_train.csv', 'w', newline='', encoding='UTF-8') as f:
-    #         wr = csv.writer(f)
-    #         wr.writerows(products)
-    #     driver.close()
+
 
     def model_fit(self):
         # ctx = self.vo.context
@@ -119,6 +183,7 @@ class NaverMovie(object):
 
     def classify(self, doc):
         return self.probability(self.word_probs, doc)
+
 
 class Imdb(object):
     def __init__(self):
