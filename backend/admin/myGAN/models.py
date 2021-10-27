@@ -1,5 +1,6 @@
 '''
 코랩에서 작동하는 코드 백업
+https://github.com/swlee9087/handson-ml2/blob/master/17_autoencoders_and_gans.ipynb
 '''
 # %tensorflow_version 1.x
 import os
