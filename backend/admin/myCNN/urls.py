@@ -3,5 +3,7 @@ from django.conf.urls import url
 from admin.myCNN import views
 
 urlpatterns = {
-    url(r'imdb_process', views.imdb_process),
+    # url(r'process', views.imdb_process),
 }
+# Cifar10Classification
+# CatDogClassification

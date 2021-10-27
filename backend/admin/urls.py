@@ -23,6 +23,9 @@ urlpatterns = [
     path('api/crime/', include('admin.crime.urls')),
     path('api/housing/', include('admin.housing.urls')),
     path('api/iris/', include('admin.iris.urls')),
+    path('api/tensor/', include('admin.tensor.urls')),
+    path('api/users/', include('admin.user.urls')),
+
     path('api/myCNN/', include('admin.myCNN.urls')),
     path('api/myCV2/', include('admin.myCV2.urls')),
     path('api/myGAN/', include('admin.myGAN.urls')),
@@ -30,7 +33,6 @@ urlpatterns = [
     path('api/myLSTM/', include('admin.myLSTM.urls')),
     path('api/myNLP/', include('admin.myNLP.urls')),
     path('api/myRNN/', include('admin.myRNN.urls')),
-    path('api/tensor/', include('admin.tensor.urls')),
-    path('api/users/', include('admin.user.urls')),
+
 
 ]

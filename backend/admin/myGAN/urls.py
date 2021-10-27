@@ -1,8 +1,7 @@
 from django.conf.urls import url
-
-from admin.myNLP import views
+from admin.myGAN import views
 
 urlpatterns = {
-    url(r'imdb_process', views.imdb_process),
-    url(r'naver_process', views.naver_process),
+    url(r'autoencodersGans_process', views.autoencodersGans_process),
+
 }
