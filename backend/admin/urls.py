@@ -16,15 +16,21 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 urlpatterns = [
-    path('api/connect', include('admin.common.urls')),
-    path('api/housing/', include('admin.housing.urls')),
-    path('api/users/', include('admin.user.urls')),
-    path('api/crime/', include('admin.crime.urls')),
-    path('api/crawling/', include('admin.crawling.urls')),
-    path('api/tensor/', include('admin.tensor.urls')),
-    path('api/iris/', include('admin.iris.urls')),
-    path('api/myCV2/', include('admin.myCV2.urls')),
-    path('api/rnn/', include('admin.rnn.urls')),
+
     path('api/ai_trader/', include('admin.ai_trader.urls')),
-    path('api/nlp/', include('admin.nlp.urls')),
+    path('api/connect', include('admin.common.urls')),
+    path('api/crawling/', include('admin.crawling.urls')),
+    path('api/crime/', include('admin.crime.urls')),
+    path('api/housing/', include('admin.housing.urls')),
+    path('api/iris/', include('admin.iris.urls')),
+    path('api/myCNN/', include('admin.myCNN.urls')),
+    path('api/myCV2/', include('admin.myCV2.urls')),
+    path('api/myGAN/', include('admin.myGAN.urls')),
+    path('api/myGRU/', include('admin.myGRU.urls')),
+    path('api/myLSTM/', include('admin.myLSTM.urls')),
+    path('api/myNLP/', include('admin.myNLP.urls')),
+    path('api/myRNN/', include('admin.myRNN.urls')),
+    path('api/tensor/', include('admin.tensor.urls')),
+    path('api/users/', include('admin.user.urls')),
+
 ]
