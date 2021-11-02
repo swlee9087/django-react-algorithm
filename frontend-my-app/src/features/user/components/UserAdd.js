@@ -1,81 +1,80 @@
-import axios from 'axios';
-import React, { useState } from 'react';
-import { useHistory  } from 'react-router-dom';
 
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import { joinPage } from 'features/user/reducer/userSlice'
+import { useForm } from "react-hook-form";
+import styled from 'styled-components'
+// https://react-hook-form.com/kr/advanced-usage/
 export default function UserAdd() {
-    const history = useHistory()
-    const SERVER = 'http://localhost:8080'
-    const [join, setJoin] = useState({
-        username:'', 
-        password:'', 
-        email:'', 
-        name:'', 
-        regDate: new Date().toLocaleDateString()
-    })  // as inverted comm = allows overwrite == memory space for variables === state
-    const {username, password, email, name} = join
-    const handleChange = e => {
-        const { value, name } = e.target
-        setJoin({
-            ...join,
-            [name] : value
-        })
-    }
-    
-    const userJoin = joinRequest => 
-                axios.post(`${SERVER}/users`, JSON.stringify(joinRequest),{headers})
-    const headers = {
-        'Content-Type' : 'application/json',
-        'Authorization': 'JWT fefege..'
-    }
-    const handleSubmit = e => {
-        e.preventDefault()
-        const joinRequest = {...join}
-        alert(`회원가입 정보: ${JSON.stringify(joinRequest)}`)
-        userJoin(joinRequest)
-        .then(res =>{
-            alert('회원가입 성공')
-            history.push('/users/login')
-        })
-        .catch(err =>{
-            alert(`회원가입 실패 : ${err}`)
-        })
-
-  }
-
-  return (
-    <div>
-         <h1>회원 가입을 환영합니다.</h1>
-    <form onSubmit={handleSubmit} method='POST'>
-        <ul>
-            <li>
-                <label>
-                    아이디 : <input type="text" id="username" name="username" value={username} onChange={handleChange}
-                    size="10" minlength="4" maxlength="15"/>
-                </label>
-                <small>4~15자리 이내의 영문과 숫자</small>
-            </li>
-            <li>
-                <label>
-                    이메일 : <input type="email" id="email" name="email" value={email} onChange={handleChange}/>
-                </label>
-            </li>
-            <li>
-                <label>
-                    비밀 번호 : <input type="password" id="password" name="password" value={password} onChange={handleChange}/>
-                </label>
-            </li>
-            <li>
-                <label>
-                    이름 : <input type="text" id="name" name="name" value={name} onChange={handleChange}/>
-                </label>
-            </li>
-           
-            <li>
-                <input type="submit" value="회원가입"/>
-            </li>
-
-        </ul>
-    </form>
-    </div>
+    const dispatch = useDispatch()
+    const { register, handleSubmit, formState: { errors } } = useForm();
+    return (
+        <div>
+            <h1>회원 가입</h1>
+        <form method='POST' 
+        onSubmit={ handleSubmit(async (data) => {await dispatch(joinPage({...data, 
+                                            regDate: new Date().toLocaleDateString()}))})}>
+            <ul>
+                <li>
+                    <label>아이디 : </label>
+                    <input type="text" id="username" 
+                        {...register('username', { required: true, maxLength: 30 })}
+                        size="10" minlength="4" maxlength="15"/>
+                        {errors.username && errors.username.type === "required" && (
+                            <Span role="alert">아이디는 필수값입니다</Span>
+                        )}
+                        {errors.username && errors.username.type === "maxLength" && (
+                            <Span role="alert">아이디는 4자에서 15 글자이어야 합니다.</Span>
+                        )}
+                    <br/>
+                    <small>4~15자리 이내의 영문과 숫자</small>
+                </li>
+                <li>
+                    <label> 이메일 : </label>
+                    <input type="email" id="email" 
+                        aria-invalid={errors.name ? "true" : "false"}
+                        {...register('email', { required: true, maxLength: 30 })}
+                        size="10" minlength="4" maxlength="15"/>
+                    {/* use role="alert" to announce the error message */}
+                    {errors.email && errors.email.type === "required" && (
+                        <Span role="alert">아이디는 필수값입니다</Span>
+                    )}
+                    {errors.email && errors.email.type === "maxLength" && (
+                        <Span role="alert">아이디는 4자에서 15 글자이어야 합니다.</Span>
+                    )}
+                </li>
+                <li>
+                    <label>비밀 번호 : </label>
+                    <input type="password" id="password" 
+                        aria-invalid={errors.password ? "true" : "false"}
+                        {...register('password', { required: true, maxLength: 30 })}
+                        size="10" minlength="1" maxlength="15"/>
+                    {errors.password && errors.password.type === "required" && (
+                        <Span role="alert">비밀 번호는 필수값입니다</Span>
+                    )}
+                    {errors.password && errors.password.type === "maxLength" && (
+                        <Span role="alert">비밀 번호는 1자에서 15 글자이어야 합니다.</Span>
+                    )}
+                </li>
+                <li>
+                    <label> 이름 : </label>
+                    <input type="text" id="name" 
+                        aria-invalid={errors.name ? "true" : "false"}
+                        {...register('name', { required: true, maxLength: 30 })}
+                        size="10" minlength="2" maxlength="5"/>
+                    {errors.name && errors.name.type === "required" && (
+                        <Span role="alert">이름은 필수값입니다</Span>
+                    )}
+                    {errors.name && errors.name.type === "maxLength" && (
+                        <Span role="alert">이름은 2자에서 5 글자이어야 합니다.</Span>
+                    )}
+                </li>
+            </ul>
+            <input type="submit" value="회원가입"/> 
+        </form>
+        </div>
   );
 }
+const Span = styled.span`
+    color: red
+`

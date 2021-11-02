@@ -12,7 +12,6 @@ import shop.cofin.api.api.user.domain.UserDTO;
 import shop.cofin.api.api.user.repository.UserRepository;
 import shop.cofin.api.api.user.service.UserService;
 import org.modelmapper.ModelMapper;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -27,13 +26,13 @@ public class UserController implements CommonController<User, Long> {
 
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody User user){
-        System.out.println("::: FROM REACT ::: "+user.toString());
-        Optional<User> u = userService.login(user.getUsername(),user.getPassword());
-        User u2 = u.get();
-        System.out.println("::: FROM DB :::"+u2.toString());
+//        System.out.println("::: FROM REACT ::: "+user.toString());
+//        Optional<User> u = userService.login(user.getUsername(),user.getPassword());
+//        User u2 = u.get();
+//        System.out.println("::: FROM DB :::"+u2.toString());
 //        System.out.println("로그인 :: 리액트에서 넘어온 정보 : " + user.toString());
 //        System.out.println("로그인 :: 디비 갔다온애 : " + returnUser.get().toString());
-        return ResponseEntity.ok(u2);
+        return ResponseEntity.ok(userService.login(user.getUsername(), user.getPassword()).orElse(new User()));
 
     }
 

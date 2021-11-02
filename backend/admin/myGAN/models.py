@@ -143,14 +143,14 @@ class GenerateFashion(object):
     def rounded_accuracy(self, y_true, y_pred): # 135번 라인에 직접 입력함
         return keras.metrics.binary_accuracy(tf.round(y_true), tf.round(y_pred))'''
 
-    def show_reconstructions(self, model, images=X_valid, n_images=5):
-        reconstructions = model.predict(images[:n_images])
-        fig = plt.figure(figsize=(n_images * 1.5, 3))
-        for image_index in range(n_images):
-            plt.subplot(2, n_images, 1 + image_index)
-            self.plot_image(images[image_index])
-            plt.subplot(2, n_images, 1 + n_images + image_index)
-            self.plot_image(reconstructions[image_index])
+    # def show_reconstructions(self, model, images=X_valid, n_images=5):
+    #     reconstructions = model.predict(images[:n_images])
+    #     fig = plt.figure(figsize=(n_images * 1.5, 3))
+    #     for image_index in range(n_images):
+    #         plt.subplot(2, n_images, 1 + image_index)
+    #         self.plot_image(images[image_index])
+    #         plt.subplot(2, n_images, 1 + n_images + image_index)
+    #         self.plot_image(reconstructions[image_index])
 
     def save_fig(self, fig_id, tight_layout=True, fig_extension="png", resolution=300):
         IMAGES_PATH = self.vo.context

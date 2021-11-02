@@ -1,20 +1,20 @@
-import axios from 'axios';
+// import axios from 'axios';
 import React, { useState } from 'react';
-import { Link, useHistory  } from 'react-router-dom';
+import {  useHistory } from 'react-router-dom';
 
 export default function UserRemove() {
   const [pwd, setPwd] = useState('')
   const sessionUser = JSON.parse(localStorage.getItem('sessionUser'))
   const history = useHistory()
-  const SERVER = 'http://localhost:8080'
   
   const handleChange = e => {
     setPwd(e.target.value)
   }
+
   const handleClick = e => {
     e.preventDefault()
     if(sessionUser.password === pwd){
-      axios.delete(`${SERVER}/users/${sessionUser.userId}`)
+      UserRemove(sessionUser)
       .then(res => {
         console.log(res.data)
         localStorage.setItem('sessionUser', '')
@@ -22,7 +22,7 @@ export default function UserRemove() {
       })
       .catch(err => console.log(err))
     }else{
-      alert('WRONG PW INPUT!!! ')
+      alert('입력된 비밀번호가 틀립니다')
       document.getElementById('password').value = ''
     }
     

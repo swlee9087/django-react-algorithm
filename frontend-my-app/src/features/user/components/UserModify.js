@@ -1,10 +1,9 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useHistory  } from 'react-router-dom';
 
 export default function UserModify() {
     const history = useHistory()
-    const SERVER = 'http://localhost:8080'
     const sessionUser = JSON.parse(localStorage.getItem('sessionUser')); 
     const [modify, setModify] = useState({
         userId: sessionUser.userId,
@@ -23,27 +22,28 @@ export default function UserModify() {
         })
     }
     const headers = {
-      'Content-Type' : 'application/json',
-      'Authorization': 'JWT fefege..'
-  }
-    const UserModify = modifyRequest => 
-                axios.put(`${SERVER}/users`, JSON.stringify(modifyRequest),{headers})
+        'Content-Type' : 'application/json',
+        'Authorization': 'JWT fefege..'
+      }
     
-    const handleSubmit = e => {
-        e.preventDefault()
+    const handleSubmit = useCallback(
+        e => {
+            e.preventDefault()
         const modifyRequest = {...modify}
         alert(`회원수정 정보: ${JSON.stringify(modifyRequest)}`)
-        UserModify(modifyRequest)
+        axios
+        .put(`http://localhost:8080/users`, JSON.stringify(modifyRequest),{headers})
         .then(res =>{
-            alert('회원 정보 수정 성공')
+            alert(`회원 정보 수정 성공 ${res.data}`)
             localStorage.setItem('sessionUser', JSON.stringify(res.data))
             history.push("/users/detail")
         })
         .catch(err =>{
             alert(`회원수정 실패 : ${err}`)
         })
+        }
+    )
 
-  }
 
   return (
     <div>
