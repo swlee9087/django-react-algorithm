@@ -68,8 +68,8 @@ const userSlice = createSlice({
       }
     },
     [modifyPage.fulfilled]: ( state, action ) => { 
-      state.userState = action.payload 
-      window.localStorage.setItem('sessionUser', JSON.stringify(action.payload))
+      localStorage.setItem('sessionUser', JSON.stringify(action.payload))
+      window.location.href = "/users/detail"
     },
     [removePage.fulfilled]: ( state, {meta, payload }) => { 
       state.userState = payload

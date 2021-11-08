@@ -4,7 +4,7 @@ plugins {
 	id 'java'
 }
 
-group = 'shop.cofin.api'
+group = 'net.zerotodev.api'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
@@ -32,7 +32,6 @@ dependencies {
 	implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
 	implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
 	implementation group: 'org.modelmapper', name: 'modelmapper', version: '2.3.8'
-
 }
 
 test {

@@ -15,19 +15,19 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long articleId;
 
-    @Column(length=50) @NotNull private String title;
-    @Column(length=50) @NotNull private String content;
-    @Column(name = "written_date", length=20) @NotNull private String writtenDate;
+    @Column @NotNull private String title;
+    @Column @NotNull private String content;
+    @Column(name = "written_date") @NotNull private String writtenDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    @JoinColumn(name = "user_id")
+    @ManyToOne
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+//    @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "item_id", insertable = false, updatable = false)
-    @JoinColumn(name = "item_id")
-    private Item item;
+    @ManyToOne
+    @JoinColumn(name = "item_id", insertable = false, updatable = false)
+//    @JoinColumn(name = "item_id")
+    private User item;
 
 
 

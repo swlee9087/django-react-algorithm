@@ -2,11 +2,12 @@ package shop.cofin.api.api.board.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
+
 import shop.cofin.api.api.board.domain.Article;
 import shop.cofin.api.api.board.repository.BoardRepository;
 import shop.cofin.api.api.board.service.BoardService;
 import shop.cofin.api.api.common.controller.CommonController;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
